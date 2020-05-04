@@ -12,17 +12,41 @@ class App extends Component {
   };
 
   componentDidMount() {
-    this.callApi()
-      .then((res) => this.setState({ response: res.express }))
-      .catch((err) => console.log(err));
+    console.log('did mount');
+    this.callApi();
+    // .then((res) => this.setState({ response: res.express }))
+    // .catch((err) => console.log(err));
   }
 
-  callApi = async () => {
-    const response = await fetch('/api/hello');
-    const body = await response.json();
-    if (response.status !== 200) throw Error(body.message);
+  getHashParams() {
+    var hashParams = {};
+    var e,
+      r = /([^&;=]+)=?([^&;]*)/g,
+      q = window.location.hash.substring(1);
+    while ((e = r.exec(q))) {
+      hashParams[e[1]] = decodeURIComponent(e[2]);
+    }
+    return hashParams;
+  }
 
-    return body;
+  callApi = () => {
+    var params = this.getHashParams();
+    var access_token = params.access_token;
+    fetch('https://api.spotify.com/v1/me', {
+      headers: {
+        Authorization: 'Bearer ' + access_token,
+      },
+    })
+      .then(function (response) {
+        console.log(response.body);
+        if (!response.ok) {
+          return Promise.reject('some reason');
+        }
+
+        return response.json();
+      })
+
+      .then((data) => console.log(data));
   };
 
   handleSubmit = async (e) => {
