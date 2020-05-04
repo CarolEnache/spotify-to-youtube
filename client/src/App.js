@@ -30,18 +30,13 @@ class App extends Component {
   }
 
   callApi = () => {
-    var params = this.getHashParams();
-    var access_token = params.access_token;
-    fetch('https://api.spotify.com/v1/me', {
-      headers: {
-        Authorization: 'Bearer ' + access_token,
-      },
-    })
+    console.log('kjhkjhkjhkjhkjhkjh');
+    fetch('http://localhost:8888/user-info')
       .then(function (response) {
-        console.log(response.body);
-        if (!response.ok) {
-          return Promise.reject('some reason');
-        }
+        console.log(response.body, 'kjhkjhkjhkjhkjhkkjh');
+        // if (!response.ok) {
+        //   return Promise.reject('some reason');
+        // }
 
         return response.json();
       })
