@@ -1,24 +1,15 @@
-import React, { Component } from 'react';
-
-import logo from './logo.svg';
+import React, { useEffect, useState } from 'react';
 
 import './App.css';
 
-class App extends Component {
-  state = {
-    response: '',
-    post: '',
-    responseToPost: '',
-  };
+const App = () => {
+  const [user, setUser] = useState();
 
-  componentDidMount() {
-    console.log('did mount');
-    this.callApi();
-    // .then((res) => this.setState({ response: res.express }))
-    // .catch((err) => console.log(err));
-  }
+  useEffect(() => {
+    callApi();
+  }, []);
 
-  getHashParams() {
+  const getHashParams = () => {
     var hashParams = {};
     var e,
       r = /([^&;=]+)=?([^&;]*)/g,
@@ -27,17 +18,17 @@ class App extends Component {
       hashParams[e[1]] = decodeURIComponent(e[2]);
     }
     return hashParams;
-  }
+  };
 
-  callApi = () => {
-    var params = this.getHashParams();
+  const callApi = () => {
+    var params = getHashParams();
     var access_token = params.access_token;
     fetch('https://api.spotify.com/v1/me', {
       headers: {
         Authorization: 'Bearer ' + access_token,
       },
     })
-      .then(function (response) {
+      .then((response) => {
         console.log(response.body);
         if (!response.ok) {
           return Promise.reject('some reason');
@@ -46,56 +37,35 @@ class App extends Component {
         return response.json();
       })
 
-      .then((data) => console.log(data));
+      .then((data) => setUser(data));
   };
 
-  handleSubmit = async (e) => {
-    e.preventDefault();
-    const response = await fetch('/api/world', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ post: this.state.post }),
-    });
-    const body = await response.text();
+  const formatUser = () => {
+    let camelCasedUser = {};
+    for (const property in user) {
+      let newProperty = property.replace(/(\_\w)/g, (m) => m[1].toUpperCase());
+      if (camelCasedUser[newProperty] === newProperty) {
+        return;
+      } else {
+        camelCasedUser[newProperty] = user[property];
+      }
+    }
 
-    this.setState({ responseToPost: body });
+    return camelCasedUser;
   };
 
-  render() {
-    return (
-      <div className='App'>
-        <header className='App-header'>
-          <img src={logo} className='App-logo' alt='logo' />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className='App-link'
-            href='https://reactjs.org'
-            target='_blank'
-            rel='noopener noreferrer'
-          >
-            Learn React
-          </a>
-        </header>
-        <p>{this.state.response}</p>
-        <form onSubmit={this.handleSubmit}>
-          <p>
-            <strong>Post to Server:</strong>
-          </p>
-          <input
-            type='text'
-            value={this.state.post}
-            onChange={(e) => this.setState({ post: e.target.value })}
-          />
-          <button type='submit'>Submit</button>
-        </form>
-        <p>{this.state.responseToPost}</p>
-      </div>
-    );
-  }
-}
+  const formattedUser = formatUser();
+  const { images = [], displayName } = formattedUser;
+  const imageURL = images.map((image) => image.url);
+
+  return (
+    <div className='App'>
+      <header className='App-header'>
+        <img href={imageURL} height='200px' width='200px' />
+        <h2>{displayName}</h2>
+      </header>
+    </div>
+  );
+};
 
 export default App;
