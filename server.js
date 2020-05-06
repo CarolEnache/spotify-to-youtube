@@ -8,6 +8,10 @@ var cookieParser = require('cookie-parser');
 var client_id = 'd4292190530d446c91340646b71c26dc'; // Your client id
 var client_secret = '34d430c541b64bc79bdf903186078fd1'; // Your secret
 var redirect_uri = 'http://localhost:8888/callback/'; // Your redirect uri
+let isLoggedIn = {
+  access_token: '',
+  refresh_token: '',
+};
 
 const app = express();
 // const port = process.env.PORT || 5000;
@@ -101,13 +105,11 @@ app.get('/callback', function (req, res) {
         });
 
         // we can also pass the token to the browser to make requests from there
-        res.redirect(
-          'http://localhost:3000/#' +
-            querystring.stringify({
-              access_token: access_token,
-              refresh_token: refresh_token,
-            })
-        );
+        res.redirect('http://localhost:3000/');
+        isLoggedIn = {
+          access_token: access_token,
+          refresh_token: refresh_token,
+        };
       } else {
         res.redirect(
           '/#' +
@@ -157,5 +159,31 @@ app.get('/refresh_token', function (req, res) {
 //     `I received your POST request. This is what you sent me: ${req.body.post}`
 //   );
 // });
+
+app.get('/user-info', (req, res) => {
+  request.get(
+    {
+      url: 'https://api.spotify.com/v1/me',
+      headers: {
+        Authorization: 'Bearer ' + isLoggedIn.access_token,
+      },
+      json: true,
+    },
+    function (error, response, body) {
+      console.log(body, response, error);
+    }
+  );
+
+  // .then(function (response) {
+  //   console.log(response.body);
+  //   if (!response.ok) {
+  //     return Promise.reject('some reason');
+  //   }
+
+  //   return response.json();
+  // })
+
+  // .then((data) => res.send(data));
+});
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
