@@ -7,6 +7,7 @@ const App = () => {
   const [token, setToken] = useState('');
   const [user, setUser] = useState({});
   const [playlists, setPlaylists] = useState([]);
+  const [playlist, setPlaylist] = useState([]);
   Spotify.setAccessToken(token);
 
   useEffect(() => {
@@ -64,21 +65,41 @@ const App = () => {
       );
   };
 
+  const getPlaylist = (id) => {
+    Spotify.getPlaylistTracks(id, (error, playlist) => {
+      if (error) console.log(error);
+
+      return setPlaylist(playlist.items);
+    });
+  };
+
   const formattedUser = formatUser();
   const { images = [], displayName } = formattedUser;
   const imageURL = images.map((image) => image.url);
+  console.log(playlist);
 
   return (
     <div className='App'>
       <header className='App-header'>
         <img src={imageURL} height='200px' width='200px' alt='avatar' />
         <h2>{displayName}</h2>
-        <a href='http://localhost:8888/login'>Login</a>
       </header>
+      <a href='http://localhost:8888/login'>Login</a>
       <div>
         <ul>
           {playlists &&
-            playlists.map(({ id, name }) => <li key={id}>{name}</li>)}
+            playlists.map(({ id, name }) => (
+              <li key={id} onClick={() => getPlaylist(id)}>
+                {name}
+                {!!playlist && (
+                  <ul>
+                    {playlist.map(({ track }) => {
+                      return <li key={track.id}>{track.name}</li>;
+                    })}
+                  </ul>
+                )}
+              </li>
+            ))}
         </ul>
       </div>
       <button onClick={getPlaylists}>Get playlists</button>
