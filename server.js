@@ -143,7 +143,7 @@ app.get('/refresh_token', function (req, res) {
   });
 });
 
-app.get('/get-user', (req, res) => {
+app.get('/get-token', (req, res) => {
   res.send({ access });
 });
 

@@ -1,37 +1,42 @@
 import React, { useEffect, useState } from 'react';
+import * as SpotifyWebApi from 'spotify-web-api-js';
 
-import './App.css';
+let Spotify = new SpotifyWebApi();
 
 const App = () => {
-  const [user, setUser] = useState();
+  const [token, setToken] = useState('');
+  const [user, setUser] = useState({});
+  const [playlists, setPlaylists] = useState([]);
+  Spotify.setAccessToken(token);
 
   useEffect(() => {
-    callApi();
+    getToken();
   }, []);
 
-  const callApi = () => {
-    fetch('/get-user')
+  const getToken = () => {
+    fetch('/get-token')
       .then((response) => {
         if (!response.ok) {
           return Promise.reject('some reason');
         }
         return response.json();
       })
-      .then((data) =>
+      .then((token) => {
+        setToken(token.access);
         fetch('https://api.spotify.com/v1/me', {
           headers: {
-            Authorization: 'Bearer ' + data.access,
+            Authorization: 'Bearer ' + token.access,
           },
         })
-      )
-      .then((response) => {
-        if (!response.ok) {
-          return Promise.reject('some reason');
-        }
+          .then((response) => {
+            if (!response.ok) {
+              return Promise.reject('some reason');
+            }
 
-        return response.json();
-      })
-      .then((data) => setUser(data));
+            return response.json();
+          })
+          .then((user) => setUser(user));
+      });
   };
 
   const formatUser = () => {
@@ -47,6 +52,17 @@ const App = () => {
 
     return camelCasedUser;
   };
+  const getPlaylists = () => {
+    !!token &&
+      Spotify.getUserPlaylists().then(
+        (data) => {
+          return setPlaylists(data.items);
+        },
+        (err) => {
+          console.error(err);
+        }
+      );
+  };
 
   const formattedUser = formatUser();
   const { images = [], displayName } = formattedUser;
@@ -57,8 +73,15 @@ const App = () => {
       <header className='App-header'>
         <img src={imageURL} height='200px' width='200px' alt='avatar' />
         <h2>{displayName}</h2>
+        <a href='http://localhost:8888/login'>Login</a>
       </header>
-      <a href='http://localhost:8888/login'>Login</a>
+      <div>
+        <ul>
+          {playlists &&
+            playlists.map(({ id, name }) => <li key={id}>{name}</li>)}
+        </ul>
+      </div>
+      <button onClick={getPlaylists}>Get playlists</button>
     </div>
   );
 };
