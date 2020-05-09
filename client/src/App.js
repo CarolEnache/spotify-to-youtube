@@ -9,34 +9,28 @@ const App = () => {
     callApi();
   }, []);
 
-  const getHashParams = () => {
-    var hashParams = {};
-    var e,
-      r = /([^&;=]+)=?([^&;]*)/g,
-      q = window.location.hash.substring(1);
-    while ((e = r.exec(q))) {
-      hashParams[e[1]] = decodeURIComponent(e[2]);
-    }
-    return hashParams;
-  };
-
   const callApi = () => {
-    var params = getHashParams();
-    var access_token = params.access_token;
-    fetch('https://api.spotify.com/v1/me', {
-      headers: {
-        Authorization: 'Bearer ' + access_token,
-      },
-    })
+    fetch('/get-user')
       .then((response) => {
-        console.log(response.body);
+        if (!response.ok) {
+          return Promise.reject('some reason');
+        }
+        return response.json();
+      })
+      .then((data) =>
+        fetch('https://api.spotify.com/v1/me', {
+          headers: {
+            Authorization: 'Bearer ' + data.access,
+          },
+        })
+      )
+      .then((response) => {
         if (!response.ok) {
           return Promise.reject('some reason');
         }
 
         return response.json();
       })
-
       .then((data) => setUser(data));
   };
 
@@ -61,9 +55,10 @@ const App = () => {
   return (
     <div className='App'>
       <header className='App-header'>
-        <img href={imageURL} height='200px' width='200px' />
+        <img src={imageURL} height='200px' width='200px' alt='avatar' />
         <h2>{displayName}</h2>
       </header>
+      <a href='http://localhost:8888/login'>Login</a>
     </div>
   );
 };
