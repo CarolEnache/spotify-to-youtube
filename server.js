@@ -10,6 +10,8 @@ var client_secret = '34d430c541b64bc79bdf903186078fd1'; // Your secret
 var redirect_uri = 'http://localhost:8888/callback/'; // Your redirect uri
 let access = '';
 
+var youtubeSearch = require('youtube-search');
+
 const app = express();
 // const port = process.env.PORT || 5000;
 const port = 8888;
@@ -145,6 +147,19 @@ app.get('/refresh_token', function (req, res) {
 
 app.get('/get-token', (req, res) => {
   res.send({ access });
+});
+
+var opts = {
+  maxResults: 1,
+  key: 'AIzaSyAU-5aETV9Go-VDfYf9y90Ueauiy169s70',
+};
+
+app.get('/youtube-search', (req, res) => {
+  youtubeSearch('jsconf', opts, function (err, results) {
+    if (err) return console.log('form error :::::::::::::::::::::::', err);
+
+    res.send(results);
+  });
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}`));

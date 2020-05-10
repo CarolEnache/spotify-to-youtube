@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import * as SpotifyWebApi from 'spotify-web-api-js';
+import * as youtubeSearch from 'youtube-search';
 
 let Spotify = new SpotifyWebApi();
 
@@ -40,6 +41,12 @@ const App = () => {
       });
   };
 
+  const getHardcodedYoutubeSerch = () => {
+    fetch('/youtube-search')
+      .then((data) => data.json())
+      .then((data) => console.log(data));
+  };
+
   const formatUser = () => {
     let camelCasedUser = {};
     for (const property in user) {
@@ -77,6 +84,19 @@ const App = () => {
   const { images = [], displayName } = formattedUser;
   const imageURL = images.map((image) => image.url);
   console.log(playlist);
+
+  var opts = {
+    maxResults: 10,
+    key: 'AIzaSyAU-5aETV9Go-VDfYf9y90Ueauiy169s70',
+  };
+  const ceva = youtubeSearch('jsconf', opts, function (err, results) {
+    if (err) return console.log('form error :::::::::::::::::::::::', err);
+
+    console.dir('form resultsss :::::::::::::::::::::::', results);
+  });
+
+  console.log(ceva);
+  getHardcodedYoutubeSerch();
 
   return (
     <div className='App'>

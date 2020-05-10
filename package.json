@@ -15,7 +15,8 @@
     "googleapis": "^50.0.0",
     "querystring": "~0.2.0",
     "request": "~2.83.0",
-    "spotify-web-api-js": "^1.4.0"
+    "spotify-web-api-js": "^1.4.0",
+    "youtube-search": "^1.1.4"
   },
   "devDependencies": {
     "concurrently": "^4.0.1"
