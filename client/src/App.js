@@ -9,7 +9,15 @@ const App = () => {
   const [user, setUser] = useState({});
   const [playlists, setPlaylists] = useState([]);
   const [playlist, setPlaylist] = useState([]);
+  const [youtubeSearchResult, setYoutubeSearchResult] = useState();
   Spotify.setAccessToken(token);
+
+  var opts = {
+    maxResults: 1,
+    key: 'AIzaSyD3XQ8nYYiMuRFnnrqMVpJ_6WYfufCtWZ4',
+  };
+
+  const [responseToPost, setResponseToPost] = useState();
 
   useEffect(() => {
     getToken();
@@ -41,11 +49,11 @@ const App = () => {
       });
   };
 
-  const getHardcodedYoutubeSerch = () => {
-    fetch('/youtube-search')
-      .then((data) => data.json())
-      .then((data) => console.log(data));
-  };
+  // const getHardcodedYoutubeSerch = () => {
+  //   fetch('/youtube-search')
+  //     .then((data) => data.json())
+  //     .then((data) => console.log(data));
+  // };
 
   const formatUser = () => {
     let camelCasedUser = {};
@@ -60,6 +68,7 @@ const App = () => {
 
     return camelCasedUser;
   };
+
   const getPlaylists = () => {
     !!token &&
       Spotify.getUserPlaylists().then(
@@ -75,28 +84,57 @@ const App = () => {
   const getPlaylist = (id) => {
     Spotify.getPlaylistTracks(id, (error, playlist) => {
       if (error) console.log(error);
-
       return setPlaylist(playlist.items);
     });
+  };
+
+  const IndividualSpotifyPlaylist = () => {
+    const setSearchQuery = (songName, singers) => {
+      let query = `${songName} ${singers}`;
+      console.log(query);
+      youtubeSearch(query, opts, function (err, results) {
+        if (err)
+          return console.error('form error :::::::::::::::::::::::', err);
+        console.log('form error :::::::::::::::::::::::', results);
+        return setYoutubeSearchResult(results);
+      });
+    };
+    console.log(youtubeSearchResult);
+    return (
+      !!playlist && (
+        <ul>
+          <h2>Spotify playlist</h2>
+          {playlist.map(({ track }) => {
+            const { artists } = track;
+            let singers = artists
+              .map((artistName) => artistName.name)
+              .join(' ');
+            return (
+              <li
+                key={track.id}
+                onClick={() => setSearchQuery(track.name, singers)}
+              >
+                <span>
+                  {singers} - {track.name}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      )
+    );
   };
 
   const formattedUser = formatUser();
   const { images = [], displayName } = formattedUser;
   const imageURL = images.map((image) => image.url);
-  console.log(playlist);
 
-  var opts = {
-    maxResults: 10,
-    key: 'AIzaSyAU-5aETV9Go-VDfYf9y90Ueauiy169s70',
-  };
-  const ceva = youtubeSearch('jsconf', opts, function (err, results) {
-    if (err) return console.log('form error :::::::::::::::::::::::', err);
-
-    console.dir('form resultsss :::::::::::::::::::::::', results);
-  });
-
-  console.log(ceva);
-  getHardcodedYoutubeSerch();
+  // youtubeSearch('abba', opts, function (err, results) {
+  //   if (err) return console.log('form error :::::::::::::::::::::::', err);
+  //   console.log('form error :::::::::::::::::::::::', results);
+  //   return results;
+  // });
+  // youtubeSearch();
 
   return (
     <div className='App'>
@@ -106,21 +144,18 @@ const App = () => {
       </header>
       <a href='http://localhost:8888/login'>Login</a>
       <div>
-        <ul>
+        <div>
           {playlists &&
             playlists.map(({ id, name }) => (
-              <li key={id} onClick={() => getPlaylist(id)}>
-                {name}
-                {!!playlist && (
-                  <ul>
-                    {playlist.map(({ track }) => {
-                      return <li key={track.id}>{track.name}</li>;
-                    })}
-                  </ul>
-                )}
-              </li>
+              <div>
+                {name}{' '}
+                <button onClick={() => getPlaylist(id)}>
+                  open this playlist
+                </button>
+              </div>
             ))}
-        </ul>
+          {playlist && <IndividualSpotifyPlaylist />}
+        </div>
       </div>
       <button onClick={getPlaylists}>Get playlists</button>
     </div>

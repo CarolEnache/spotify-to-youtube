@@ -4,13 +4,12 @@ var request = require('request'); // "Request" library
 var cors = require('cors');
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
+var youtubeSearch = require('youtube-search');
 
 var client_id = 'd4292190530d446c91340646b71c26dc'; // Your client id
 var client_secret = '34d430c541b64bc79bdf903186078fd1'; // Your secret
 var redirect_uri = 'http://localhost:8888/callback/'; // Your redirect uri
 let access = '';
-
-var youtubeSearch = require('youtube-search');
 
 const app = express();
 // const port = process.env.PORT || 5000;
@@ -154,12 +153,34 @@ var opts = {
   key: 'AIzaSyAU-5aETV9Go-VDfYf9y90Ueauiy169s70',
 };
 
-app.get('/youtube-search', (req, res) => {
-  youtubeSearch('jsconf', opts, function (err, results) {
-    if (err) return console.log('form error :::::::::::::::::::::::', err);
+// app.get('/youtube-search', (req, res) => {
+//   youtubeSearch('The Sideshow (feat. Ernie Fresh)', opts, function (
+//     err,
+//     results
+//   ) {
+//     if (err) return console.log('form error :::::::::::::::::::::::', err);
 
-    res.send(results);
-  });
-});
+//     res.send(results);
+//   });
+// });
+
+// app.get('/api/hello', (req, res) => {
+//   res.send({ express: 'Hello From Express' });
+// });
+
+// app.get('/youtube-search', (req, res) => {
+//   let youtubeSearchQuery = req.body.post;
+//   let youTubeResponse = {};
+//   youtubeSearch('abba', opts, function (err, results) {
+//     if (err) return console.log('form error :::::::::::::::::::::::', err);
+//     console.log('form error :::::::::::::::::::::::', results);
+//     return results;
+//   });
+//   youtubeSearch();
+
+//   console.log('youTubeResponse ::::', youTubeResponse);
+//   // res.send(youTubeResponse);
+//   res.send({ ceva: 'ceva' });
+// });
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
